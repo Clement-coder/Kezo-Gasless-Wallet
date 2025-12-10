@@ -1,39 +1,29 @@
-# 1️⃣ Project Abbreviation
 
-**KEZO** can stand for:
+---
 
-**K** – **Kinetic** (fast, smooth transaction flow)
-**E** – **Execution** (meta-transaction execution via relayer)
-**Z** – **Zero-gas** (gasless transaction experience)
-**O** – **Onboarding** (easy user onboarding for Web3)
+# KEZO – Gasless Wallet Infrastructure on Starknet
 
-So:
+**KEZO** (Kinetic Execution, Zero-gas Onboarding) is a Starknet-native gasless wallet infrastructure. It enables secure, account-abstraction-powered meta-transaction execution and gas sponsorship via a relayer and paymaster system.
 
-```md
-# Kezo – Gasless Wallet Infrastructure on Starknet
-
-KEZO (Kinetic Execution, Zero-gas Onboarding) is a Starknet-native backend infrastructure for gasless wallets.  
-It enables secure, account-abstraction-powered meta-transaction execution and gas sponsorship via a relayer and paymaster system.
-
-Kezo is designed to simplify onboarding, provide a Web2-style user experience, and enable mass adoption of Web3 applications without requiring users to hold native gas tokens.
+Kezo simplifies onboarding, provides a Web2-style user experience, and supports mass adoption of Web3 applications without requiring users to hold native gas tokens.
 
 ---
 
 ## Table of Contents
 
-1. [Overview](#overview)  
-2. [Features](#features)  
-3. [Architecture](#architecture)  
-4. [Technology Stack](#technology-stack)  
-5. [Project Structure](#project-structure)  
-6. [Environment Configuration](#environment-configuration)  
-7. [Installation](#installation)  
-8. [API Endpoints](#api-endpoints)  
-9. [Administrative Endpoints](#administrative-endpoints)  
-10. [Security Model](#security-model)  
-11. [Testing](#testing)  
-12. [Use Cases](#use-cases)  
-13. [Production Roadmap](#production-roadmap)  
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Architecture](#architecture)
+4. [Technology Stack](#technology-stack)
+5. [Project Structure](#project-structure)
+6. [Environment Configuration](#environment-configuration)
+7. [Installation](#installation)
+8. [API Endpoints](#api-endpoints)
+9. [Administrative Endpoints](#administrative-endpoints)
+10. [Security Model](#security-model)
+11. [Testing](#testing)
+12. [Use Cases](#use-cases)
+13. [Production Roadmap](#production-roadmap)
 14. [License](#license)
 
 ---
@@ -42,66 +32,63 @@ Kezo is designed to simplify onboarding, provide a Web2-style user experience, a
 
 Kezo provides:
 
-- Gasless transactions on Starknet via Account Abstraction
-- Relayer service for verified meta-transaction submission
-- Paymaster-based gas sponsorship
-- Admin and operator controls for funding, usage limits, and monitoring
-- User-friendly onboarding without compromising security
+* Gasless transactions on Starknet via Account Abstraction
+* Relayer service for verified meta-transaction submission
+* Paymaster-based gas sponsorship
+* Admin and operator controls for funding, usage limits, and monitoring
+* User-friendly onboarding without compromising security
 
-The backend never stores user private keys; all transactions are signed locally and relayed securely to Starknet.
+All transactions are signed locally; no user private keys are stored on the server.
 
 ---
 
 ## Features
 
-- Gas-sponsored transaction execution
-- Meta-transaction relaying with signature verification
-- Nonce-based replay protection
-- Rate limiting and per-user monthly spending caps
-- Administrative paymaster funding and control
-- Transaction logging and monitoring
-- SQLite for development, Postgres-ready for production
-- Session key support for wallets and dApps
+* Gas-sponsored transaction execution
+* Meta-transaction relaying with signature verification
+* Nonce-based replay protection
+* Rate limiting and per-user monthly spending caps
+* Administrative paymaster funding and control
+* Transaction logging and monitoring
+* SQLite for development, Postgres-ready for production
+* Session key support for wallets and dApps
 
 ---
 
 ## Architecture
 
 ```
-
 Client Wallet
-|
-| Signed Meta-Transaction
-|
+    |
+    | Signed Meta-Transaction
+    |
 Kezo Relayer API
-|
-| Sponsored Transaction
-|
+    |
+    | Sponsored Transaction
+    |
 Starknet Network
-|
+    |
 Account Contract -> Paymaster Contract -> Execution
-
 ```
 
 ---
 
 ## Technology Stack
 
-- Blockchain: Starknet  
-- Smart Contracts: Cairo 1  
-- Backend: Node.js + TypeScript  
-- API Framework: Express  
-- Database: SQLite (dev), Postgres (prod)  
-- RPC: starknet.js  
-- Authentication: Admin API Key  
-- Deployment: Docker, VPS, Railway, or Render  
+* **Blockchain:** Starknet
+* **Smart Contracts:** Cairo 1
+* **Backend:** Node.js + TypeScript
+* **API Framework:** Express
+* **Database:** SQLite (dev), Postgres (prod)
+* **RPC:** starknet.js
+* **Authentication:** Admin API Key
+* **Deployment:** Docker, VPS, Railway, or Render
 
 ---
 
 ## Project Structure
 
 ```
-
 src/
 ├── admin.ts          # Admin endpoints for funding, caps, logs
 ├── db.ts             # Database connection and schema
@@ -110,8 +97,7 @@ src/
 ├── server.ts         # Application entry point
 ├── types.ts          # TypeScript types
 └── utils/
-└── signature.ts  # Signature verification utilities
-
+    └── signature.ts  # Signature verification utilities
 ```
 
 ---
@@ -121,11 +107,10 @@ src/
 Create a `.env` file:
 
 ```
-
 PORT=8080
 
 STARKNET_NETWORK=alpha-goerli
-SEQUENCER_BASE_URL=[https://alpha-goerli.starknet.io](https://alpha-goerli.starknet.io)
+SEQUENCER_BASE_URL=https://alpha-goerli.starknet.io
 
 RELAYER_PRIVATE_KEY=0x...
 PAYMASTER_PRIVATE_KEY=0x...
@@ -136,8 +121,7 @@ ADMIN_API_KEY=supersecretkey
 DB_PATH=./data/relayer.db
 SPEND_LIMIT_PER_USER_USD=10
 MAX_REQUESTS_PER_MINUTE=10
-
-````
+```
 
 > **Note:** All private keys must be stored securely in production using environment secret managers.
 
@@ -149,7 +133,7 @@ Install dependencies:
 
 ```bash
 npm install
-````
+```
 
 Run development server:
 
@@ -173,8 +157,6 @@ npm start
 ```
 GET /health
 ```
-
----
 
 ### Submit Gasless Transaction
 
@@ -202,8 +184,6 @@ POST /relayer/submit
 }
 ```
 
----
-
 ### Paymaster Balance
 
 ```
@@ -214,7 +194,7 @@ GET /paymaster/balance
 
 ## Administrative Endpoints
 
-Admin endpoints are protected with `x-admin-key` header.
+Admin endpoints require `x-admin-key` header.
 
 ### Set User Spending Cap
 
@@ -231,15 +211,11 @@ POST /admin/set-cap
 }
 ```
 
----
-
 ### Top Up Paymaster
 
 ```
 POST /admin/topup
 ```
-
----
 
 ### View Relayer Logs
 
@@ -251,12 +227,12 @@ GET /admin/logs
 
 ## Security Model
 
-* Transactions are signed by user account or session key; private keys are never stored server-side
+* Transactions signed by user or session key; private keys never stored server-side
 * Signature verification and nonce validation prevent replay attacks
 * Rate limiting prevents transaction spam
 * Per-user monthly caps prevent paymaster abuse
 * Admin routes secured with API keys
-* All sensitive values must be encrypted or stored in secure secret managers in production
+* Sensitive values should be encrypted or stored in secure secret managers in production
 
 ---
 
@@ -307,4 +283,3 @@ MIT License
 ```
 
 ---
-
