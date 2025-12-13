@@ -8,7 +8,7 @@ import { HiMenu, HiX } from "react-icons/hi"
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: FaWallet },
-  { label: "History", path: "/dashboard", icon: FaChartLine },
+  { label: "History", path: "/history", icon: FaChartLine },
   { label: "Settings", path: "/settings", icon: FaCog },
 ]
 

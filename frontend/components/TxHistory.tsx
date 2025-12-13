@@ -1,7 +1,14 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { FaPaperPlane, FaDownload, FaCheckCircle, FaSpinner, FaTimesCircle } from "react-icons/fa"
+import {
+  FaPaperPlane,
+  FaDownload,
+  FaCheckCircle,
+  FaSpinner,
+  FaTimesCircle,
+  FaExternalLinkAlt,
+} from "react-icons/fa"
 import { useWalletStore } from "@/state/useWalletStore"
 
 export default function TxHistory() {
@@ -30,6 +37,23 @@ export default function TxHistory() {
     })
   }
 
+  const getTxDescription = (tx: any) => {
+    if (tx.type === "send") {
+      return (
+        <p className="text-sm text-gray-500">
+          You sent {tx.amount.toFixed(4)} ETH to{" "}
+          <span className="font-semibold text-gray-700">{tx.to.slice(0, 10)}...</span>
+        </p>
+      )
+    }
+    return (
+      <p className="text-sm text-gray-500">
+        You received {tx.amount.toFixed(4)} ETH from{" "}
+        <span className="font-semibold text-gray-700">{tx.from.slice(0, 10)}...</span>
+      </p>
+    )
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -42,16 +66,16 @@ export default function TxHistory() {
       {transactions.length === 0 ? (
         <p className="text-center text-[#555555] py-8">No transactions yet</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {transactions.map((tx, index) => (
             <motion.div
               key={tx.hash}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="flex items-start gap-4"
             >
-              <div className={`p-3 rounded-lg ${tx.type === "send" ? "bg-[#722F37]/10" : "bg-green-100"}`}>
+              <div className="mt-1">
                 {tx.type === "send" ? (
                   <FaPaperPlane className="text-[#722F37]" />
                 ) : (
@@ -59,25 +83,32 @@ export default function TxHistory() {
                 )}
               </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="font-semibold text-[#1A1A1A] capitalize">{tx.type}</p>
-                  {getStatusIcon(tx.status)}
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-[#1A1A1A]">{getTxDescription(tx)}</p>
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(tx.status)}
+                    <p
+                      className={`font-semibold ${
+                        tx.type === "send" ? "text-red-600" : "text-green-600"
+                      }`}
+                    >
+                      {tx.type === "send" ? "-" : "+"}
+                      {tx.amount.toFixed(4)} ETH
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm text-[#555555] truncate">
-                  {tx.type === "send" ? `To: ${tx.to}` : `From: ${tx.from}`}
-                </p>
-                <p className="text-xs text-[#555555] mt-1">{formatTimestamp(tx.timestamp)}</p>
-              </div>
-
-              <div className="text-right">
-                <p className={`font-semibold ${tx.type === "send" ? "text-red-600" : "text-green-600"}`}>
-                  {tx.type === "send" ? "-" : "+"}
-                  {tx.amount.toFixed(4)} ETH
-                </p>
-                <p className="text-xs text-[#555555] mt-1 font-mono truncate max-w-[100px]">
-                  {tx.hash.slice(0, 10)}...
-                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-xs text-gray-500">{formatTimestamp(tx.timestamp)}</p>
+                  <a
+                    href={`https://sepolia.basescan.org/tx/${tx.hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-500 hover:underline flex items-center gap-1"
+                  >
+                    View on Block Explorer <FaExternalLinkAlt />
+                  </a>
+                </div>
               </div>
             </motion.div>
           ))}

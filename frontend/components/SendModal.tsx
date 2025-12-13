@@ -4,29 +4,35 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { FaTimes, FaCheckCircle, FaSpinner, FaTimesCircle } from "react-icons/fa"
 import { useWalletStore } from "@/state/useWalletStore"
-import { sendTransaction } from "@/lib/mockWallet"
+import { useWallets } from "@privy-io/react-auth"
 
 type TxStatus = "idle" | "pending" | "success" | "failed"
 
 export default function SendModal({ onClose }: { onClose: () => void }) {
   const { balance, addTransaction } = useWalletStore()
+  const { wallets } = useWallets()
   const [recipient, setRecipient] = useState("")
   const [amount, setAmount] = useState("")
   const [status, setStatus] = useState<TxStatus>("idle")
   const [txHash, setTxHash] = useState("")
 
+  const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === "privy")
+
   const handleSend = async () => {
-    if (!recipient || !amount || Number.parseFloat(amount) <= 0) return
+    if (!recipient || !amount || Number.parseFloat(amount) <= 0 || !embeddedWallet) return
 
     setStatus("pending")
 
-    const result = await sendTransaction(recipient, Number.parseFloat(amount), balance)
-
-    if (result.success) {
+    try {
+      const tx = await embeddedWallet.sendTransaction({
+        to: recipient,
+        value: Number.parseFloat(amount),
+        data: "0x",
+      })
       setStatus("success")
-      setTxHash(result.txHash)
+      setTxHash(tx.hash)
       addTransaction({
-        hash: result.txHash,
+        hash: tx.hash,
         type: "send",
         amount: Number.parseFloat(amount),
         to: recipient,
@@ -36,7 +42,8 @@ export default function SendModal({ onClose }: { onClose: () => void }) {
       setTimeout(() => {
         onClose()
       }, 2500)
-    } else {
+    } catch (error) {
+      console.error(error)
       setStatus("failed")
     }
   }

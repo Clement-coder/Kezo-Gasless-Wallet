@@ -7,24 +7,49 @@ import Sidebar from "@/components/SideBar"
 import WalletCard from "@/components/WalletCard"
 import TxHistory from "@/components/TxHistory"
 import { useWalletStore } from "@/state/useWalletStore"
-import { checkAuth } from "@/lib/mockAuth"
 import { useActivityTracker } from "@/lib/activityTracker"
+import { usePrivy, useWallets } from "@privy-io/react-auth"
+import ProfileCard from "@/components/ProfileCard"
+import { fetchTransactions } from "@/lib/basescan"
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { isLocked, address } = useWalletStore()
+  const { isLocked, setAddress, setBalance } = useWalletStore()
+  const { authenticated, ready, user } = usePrivy()
+  const { wallets } = useWallets()
 
   useActivityTracker()
 
+  const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === "privy")
+
+  console.log("Privy wallets:", wallets)
+  console.log("Embedded wallet:", embeddedWallet)
+  if (embeddedWallet) {
+    console.log("Embedded wallet address:", embeddedWallet.address)
+  }
+
   useEffect(() => {
-    if (!checkAuth()) {
-      router.push("/login")
+    if (ready && !authenticated) {
+      router.push("/")
     } else if (isLocked) {
       router.push("/locked")
     }
-  }, [isLocked, router])
 
-  if (!checkAuth() || isLocked) {
+    if (embeddedWallet) {
+      setAddress(embeddedWallet.address)
+      embeddedWallet.getErc20Balance("84532").then((balance) => {
+        setBalance(Number(balance.value))
+      })
+    }
+  }, [isLocked, router, ready, authenticated, embeddedWallet, setAddress, setBalance, wallets])
+
+  useEffect(() => {
+    if (embeddedWallet) {
+      fetchTransactions(embeddedWallet.address)
+    }
+  }, [embeddedWallet])
+
+  if (!ready || !authenticated || isLocked) {
     return null
   }
 
@@ -43,7 +68,14 @@ export default function DashboardPage() {
             <p className="text-[#555555]">Manage your gasless wallet</p>
           </div>
 
-          <WalletCard />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <WalletCard />
+            </div>
+            <div>
+              <ProfileCard user={user} />
+            </div>
+          </div>
 
           <TxHistory />
         </motion.div>

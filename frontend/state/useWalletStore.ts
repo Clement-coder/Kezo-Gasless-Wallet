@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import { generateWalletAddress } from "@/lib/mockWallet"
 
 interface Transaction {
   hash: string
@@ -13,12 +12,14 @@ interface Transaction {
 }
 
 interface WalletState {
-  address: string
+  address: string | null
   balance: number
   isLocked: boolean
   autoLock: boolean
   inactivityTimeout: number
   transactions: Transaction[]
+  setAddress: (address: string) => void
+  setBalance: (balance: number) => void
   lock: () => void
   unlock: () => void
   setAutoLock: (enabled: boolean) => void
@@ -29,21 +30,23 @@ interface WalletState {
 export const useWalletStore = create<WalletState>()(
   persist(
     (set) => ({
-      address: generateWalletAddress(),
-      balance: 2.4567,
+      address: null,
+      balance: 0,
       isLocked: false,
       autoLock: true,
       inactivityTimeout: 300000,
       transactions: [],
+      setAddress: (address) => set({ address }),
+      setBalance: (balance) => set({ balance }),
       lock: () => set({ isLocked: true }),
       unlock: () => set({ isLocked: false }),
       setAutoLock: (enabled) => set({ autoLock: enabled }),
-      setInactivityTimeout: (timeout) => set({ inactivityTimeout: timeout }),
-      addTransaction: (tx) =>
-        set((state) => ({
-          transactions: [tx, ...state.transactions].slice(0, 10),
-          balance: tx.type === "send" ? state.balance - tx.amount : state.balance + tx.amount,
-        })),
+        setInactivityTimeout: (timeout) => set({ inactivityTimeout: timeout }),
+          addTransaction: (tx) =>
+            set((state) => ({
+              transactions: [tx, ...state.transactions].slice(0, 10),
+            })),        setTransactions: (transactions) => set({ transactions }),
+      
     }),
     {
       name: "kezo_wallet_state",

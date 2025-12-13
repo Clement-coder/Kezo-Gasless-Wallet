@@ -12,9 +12,11 @@ export default function WalletCard() {
   const [copied, setCopied] = useState(false)
 
   const copyAddress = () => {
-    navigator.clipboard.writeText(address)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    if (address) {
+      navigator.clipboard.writeText(address)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
   }
 
   return (
@@ -23,7 +25,7 @@ export default function WalletCard() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
-        className="bg-gradient-to-br from-[#722F37] to-[#8d3a45] rounded-2xl p-6 text-white shadow-lg"
+        className="bg-gradient-to-br from-[#722F37] to-[#8d3a45] rounded-2xl p-6 text-white shadow-lg h-full"
       >
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -44,7 +46,7 @@ export default function WalletCard() {
             onClick={copyAddress}
             className="bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition-colors w-full text-left"
           >
-            <p className="text-sm font-mono truncate">{copied ? "Copied!" : address}</p>
+            <p className="text-sm font-mono truncate">{copied ? "Copied!" : address || "Loading..."}</p>
           </button>
         </div>
 

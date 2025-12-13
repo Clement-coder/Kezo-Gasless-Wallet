@@ -1,19 +1,15 @@
 "use client"
 
 import type React from "react"
-
 import { motion } from "framer-motion"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useState, Suspense } from "react"
-import { FaWallet, FaSpinner } from "react-icons/fa"
-import { login, signup } from "@/lib/mockAuth"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { FaLock, FaSpinner } from "react-icons/fa"
+import { PasswordStrength } from "./strength"
+import { storePassword } from "@/lib/mockAuth"
 
-function LoginForm() {
+export default function PasswordPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const isSignup = searchParams.get("mode") === "signup"
-
-  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -23,17 +19,7 @@ function LoginForm() {
 
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    if (isSignup) {
-      signup(email, password)
-    } else {
-      const success = login(email, password)
-      if (!success) {
-        alert("Invalid credentials")
-        setLoading(false)
-        return
-      }
-    }
-
+    storePassword(password)
     router.push("/dashboard")
   }
 
@@ -46,26 +32,15 @@ function LoginForm() {
       >
         <div className="flex justify-center mb-6">
           <div className="bg-[#722F37] p-4 rounded-xl">
-            <FaWallet className="text-white text-3xl" />
+            <FaLock className="text-white text-3xl" />
           </div>
         </div>
 
         <h2 className="text-2xl font-bold text-center mb-6 text-[#1A1A1A]">
-          {isSignup ? "Create Your Wallet" : "Welcome Back"}
+          Create Your Password
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[#1A1A1A] mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#722F37] focus:outline-none transition-colors"
-              required
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-[#1A1A1A] mb-2">Password</label>
             <input
@@ -75,6 +50,7 @@ function LoginForm() {
               className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#722F37] focus:outline-none transition-colors"
               required
             />
+            <PasswordStrength password={password} />
           </div>
 
           <motion.button
@@ -87,32 +63,14 @@ function LoginForm() {
             {loading ? (
               <>
                 <FaSpinner className="animate-spin" />
-                <span>Processing...</span>
+                <span>Creating Wallet...</span>
               </>
             ) : (
-              <span>{isSignup ? "Create Wallet" : "Login"}</span>
+              <span>Create Wallet</span>
             )}
           </motion.button>
         </form>
-
-        <p className="text-center text-sm text-[#555555] mt-6">
-          {isSignup ? "Already have a wallet?" : "Don't have a wallet?"}{" "}
-          <button
-            onClick={() => router.push(isSignup ? "/login" : "/login?mode=signup")}
-            className="text-[#722F37] font-medium hover:underline"
-          >
-            {isSignup ? "Login" : "Create one"}
-          </button>
-        </p>
       </motion.div>
     </div>
-  )
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#F5F5F5]">Loading...</div>}>
-      <LoginForm />
-    </Suspense>
   )
 }
