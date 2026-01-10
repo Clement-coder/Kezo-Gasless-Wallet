@@ -64,7 +64,13 @@ export default function TxHistory() {
       <h2 className="text-xl font-semibold text-[#1A1A1A] mb-4">Recent Transactions</h2>
 
       {transactions.length === 0 ? (
-        <p className="text-center text-[#555555] py-8">No transactions yet</p>
+        <div className="flex flex-col items-center justify-center py-8 text-[#555555]">
+          <FaPaperPlane className="text-4xl mb-3 text-[#722F37]/60" />
+          <p className="text-lg font-medium mb-1">No transactions yet</p>
+          <p className="text-sm text-center">
+            Your recent transactions will appear here.
+          </p>
+        </div>
       ) : (
         <div className="space-y-4">
           {transactions.map((tx, index) => (

@@ -3,7 +3,6 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import Sidebar from "@/components/SideBar"
 import WalletCard from "@/components/WalletCard"
 import TxHistory from "@/components/TxHistory"
 import { useWalletStore } from "@/state/useWalletStore"
@@ -11,53 +10,48 @@ import { useActivityTracker } from "@/lib/activityTracker"
 import { usePrivy, useWallets } from "@privy-io/react-auth"
 import ProfileCard from "@/components/ProfileCard"
 import { fetchTransactions } from "@/lib/basescan"
+import MobileNavbar from "@/components/MobileNavbar"
 
 export default function DashboardPage() {
   const router = useRouter()
   const { isLocked, setAddress, setBalance } = useWalletStore()
-  const { authenticated, ready, user } = usePrivy()
-  const { wallets } = useWallets()
+  const { authenticated, ready: privyReady, user } = usePrivy()
+  const { wallets, ready: walletsReady } = useWallets()
 
   useActivityTracker()
 
   const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === "privy")
 
-  console.log("Privy wallets:", wallets)
-  console.log("Embedded wallet:", embeddedWallet)
-  if (embeddedWallet) {
-    console.log("Embedded wallet address:", embeddedWallet.address)
-  }
-
   useEffect(() => {
-    if (ready && !authenticated) {
+    if (privyReady && !authenticated) {
       router.push("/")
     } else if (isLocked) {
       router.push("/locked")
     }
 
-    if (embeddedWallet) {
+    if (walletsReady && embeddedWallet) {
       setAddress(embeddedWallet.address)
       embeddedWallet.getErc20Balance("84532").then((balance) => {
         setBalance(Number(balance.value))
       })
     }
-  }, [isLocked, router, ready, authenticated, embeddedWallet, setAddress, setBalance, wallets])
+  }, [isLocked, router, privyReady, authenticated, walletsReady, embeddedWallet, setAddress, setBalance])
 
   useEffect(() => {
-    if (embeddedWallet) {
+    if (walletsReady && embeddedWallet) {
       fetchTransactions(embeddedWallet.address)
     }
-  }, [embeddedWallet])
+  }, [walletsReady, embeddedWallet])
 
-  if (!ready || !authenticated || isLocked) {
+  if (!privyReady || !authenticated || isLocked) {
     return null
   }
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] flex">
-      <Sidebar />
+      <MobileNavbar />
 
-      <main className="flex-1 p-6 lg:p-8">
+      <main className="flex-1 p-6 lg:p-8 pt-16 lg:pt-0">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

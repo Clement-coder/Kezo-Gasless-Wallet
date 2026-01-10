@@ -12,10 +12,9 @@ const navItems = [
   { label: "Settings", path: "/settings", icon: FaCog },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (isOpen: boolean) => void }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
 
   const SidebarContent = () => (
     <>
@@ -56,21 +55,6 @@ export default function Sidebar() {
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-xl shadow-lg text-[#722F37]"
-      >
-        {isOpen ? <HiX className="text-2xl" /> : <HiMenu className="text-2xl" />}
-      </button>
-
-      <motion.aside
-        initial={false}
-        animate={{ x: isOpen ? 0 : "-100%" }}
-        className="lg:hidden fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl"
-      >
-        <SidebarContent />
-      </motion.aside>
-
       <aside className="hidden lg:block w-64 bg-white shadow-lg">
         <SidebarContent />
       </aside>

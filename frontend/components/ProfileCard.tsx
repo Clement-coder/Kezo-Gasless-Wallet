@@ -7,8 +7,8 @@ import { User } from "@privy-io/react-auth"
 
 export default function ProfileCard({ user }: { user: User | null }) {
   const { address } = useWalletStore()
-  const email = user?.linkedAccounts.find((account) => account.type === "email")?.address
-  const name = user?.linkedAccounts.find((account) => account.type === "google")?.name
+  const email = user?.google?.email || user?.email
+  const name = user?.google?.name
 
   return (
     <motion.div
@@ -46,7 +46,7 @@ export default function ProfileCard({ user }: { user: User | null }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-[#555555]">Wallet Address</p>
-            <p className="font-mono text-sm text-[#1A1A1A] truncate">{address}</p>
+            <p className="font-mono text-sm text-[#1A1A1A] truncate">{address || "Loading..."}</p>
           </div>
         </div>
       </div>
